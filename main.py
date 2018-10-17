@@ -23,11 +23,11 @@ class Blog(db.Model):
 
 @app.route('/blog', methods=['GET'])
 def index():
-    post_id = request.args.get("id")
+    post_id = request.args.get("key_id")
     if post_id != None:
         post_id = int(post_id)
         blog = Blog.query.filter_by(id=post_id).first()
-        return render_template('post.html',title="Blog Submitted!", blog=blog)
+        return render_template('post.html',title="Build a Blog", blog=blog)
     
     blogs = Blog.query.all()
     return render_template('blog.html',title="Build a Blog", 
@@ -37,20 +37,27 @@ def index():
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
     
-    title_error = ''
-    blog_error = ''
     if request.method == 'POST':
+        title_error = ''
+        blog_error = ''
         title = request.form['title']
         blog = request.form['blog']
-        if title != '' and blog != '':
+        if not title and not blog:  
+            title_error = "please fill the title" 
+            blog_error = "please fill the body"
+            return render_template('newpost.html', title_error = title_error, blog_error=blog_error)
+        elif not blog:  
+                blog_error = "please fill the body" 
+                return render_template('newpost.html', blog_error=blog_error, title_content=title) 
+        elif not title:  
+                title_error = "please fill the title" 
+                return render_template('newpost.html', title_error = title_error, blog_content=blog)            
+        else: 
             new_blog = Blog(title, blog)
             db.session.add(new_blog)
             db.session.commit()
-            return redirect('/blog?id=' + str(new_blog.id))
-        else: 
-            title_error = "please fill the title" 
-            blog_error = "please fill the body"  
-            return render_template('newpost.html', title_error = title_error, blog_error=blog_error)  
+            return redirect('/blog?key_id=' + str(new_blog.id))
+           
         
     return render_template('newpost.html')
 

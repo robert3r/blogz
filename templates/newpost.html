@@ -5,14 +5,14 @@
     <form method='post'>
         <label>
             Title for your new blog: <br>
-            <input type="text" name='title' size="32" />
+            <input type="text" name='title' size="32" value="{{title_content}}"/>
             <div class="error">
                     {{ title_error }}
             </div>
         </label> <br> <br>
         <label>
             Your new blog: <br> 
-            <textarea name="blog" rows="5" cols="25"> </textarea>
+            <textarea name='blog' rows="5" cols="25">{{blog_content}}</textarea>
             <div class="error">
                     {{ blog_error }}
             </div>
