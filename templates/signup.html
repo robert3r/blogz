@@ -7,19 +7,22 @@
         <tr>
             <td><label for="username">Username</label></td>
             <td>
-                <input name="username" type="text" value="{{ username }}">
+                <input name="username" type="text" value="{{username}}">
+                <span class="text-danger">{{username_error}}</span>
             </td>
         </tr>
         <tr>
             <td><label for="password">Password</label></td>
             <td>
-                <input name="password" type="password">
+                <input name="password" type="password" value="{{password}}">
+                <span class="text-danger">{{password_error}}</span>
             </td>
         </tr>
         <tr>
             <td><label for="verify">Verify Password</label></td>
             <td>
-                <input name="verify" type="password">
+                <input name="verify" type="password" value="{{verify}}">
+                <span class="text-danger">{{verify_error}}</span>
             </td>
         </tr>
     </table>
