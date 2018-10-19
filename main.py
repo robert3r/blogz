@@ -39,13 +39,26 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+
+        if not username and not password:
+            flash("Please fill the username and password")
+        elif not username:
+            flash("Please insert your username")  
+        elif not password:
+             flash("Please insert your password")   
+             return render_template('login.html', username=username) 
         user = User.query.filter_by(username=username).first()
         if user and user.password == password:
-            session['username'] = username
-            flash("Logged in")
+            session['user'] = user.username
+            # TODO - "remember" that the user has logged in
+            flash("Welcome "+ user.username)
             return redirect('/newpost')
         else:
-            flash('User password incorrect, or user does not exist', 'error')
+            if not user:
+                flash("Unregistered user, please go to register first")
+            if user and user.password != password:    
+                flash("Incorrect password, please remember it, not option yet for reset it")
+                return render_template('login.html', username=username)
 
     return render_template('login.html')
 
@@ -53,24 +66,28 @@ def login():
 @app.route('/signup', methods=['POST', 'GET'])
 def register():
     if request.method == 'POST':
-        email = request.form['email']
+        username = request.form['username']
         password = request.form['password']
         verify = request.form['verify']
+        if not username and not password:
+            flash("Please fill the username and password")
 
         # TODO - validate user's data
-
-        existing_user = User.query.filter_by(email=email).first()
+        if password != verify:
+            flash("Passwords do not match, please re-enter")
+        existing_user = User.query.filter_by(username=username).first()
         if not existing_user:
-            new_user = User(email, password)
+            new_user = User(username, password)
             db.session.add(new_user)
             db.session.commit()
-            session['email'] = email
-            return redirect('/')
+            session['username'] = username
+            return redirect('/newpost')
         else:
-            # TODO - user better response messaging
-            return "<h1>Duplicate user</h1>"
+            flash("User already exist")
+            return redirect('/signup')
+    else:
+        return render_template('signup.html')
 
-return render_template('register.html')
 @app.route('/blog', methods=['GET'])
 def index():
     post_id = request.args.get("key_id")
@@ -86,8 +103,8 @@ def index():
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
-    allowed_routes = ['login', 'register']
-    if request.endpoint not in allowed_routes and 'username' not in session:
+    allowed_routes = ['login', 'signup']
+    if request.endpoint not in allowed_routes and 'user' not in session:
         return redirect('/login')
     
     if request.method == 'POST':
@@ -113,6 +130,12 @@ def new_post():
            
         
     return render_template('newpost.html')
+
+@app.route("/logout", methods=['POST'])
+def logout():
+    del session['user']
+    return redirect('/blog')
+
 
 if __name__ == '__main__':
     app.run()
